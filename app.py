@@ -8,7 +8,7 @@ API_KEY = os.getenv('API_KEY')
 
 app = Flask(__name__) 
 
-app.secret_key = '!a11bb23!'
+app.secret_key = os.getenv('LOGIN_SECRET_KEY')
 
 # 메인 서비스 페이지
 @app.route('/')
