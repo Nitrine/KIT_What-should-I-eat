@@ -1,13 +1,14 @@
-from flask import Flask, request, render_template, redirect, session
+from flask import Flask, request, render_template, redirect, session, jsonify, Response
 from dotenv import load_dotenv
 import os
 import sqlite3
+import json
 
 load_dotenv(verbose=True)
 API_KEY = os.getenv('API_KEY')
 
-app = Flask(__name__) 
-
+app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False
 app.secret_key = os.getenv('LOGIN_SECRET_KEY')
 
 # 메인 서비스 페이지
@@ -121,6 +122,23 @@ def get_data_from_db():
 
     return data
 
+def get_data_from_db_dict():
+    conn = sqlite3.connect('address.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES, isolation_level=None) # DB에 연결
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+
+    c.execute('SELECT name, address, category FROM table_name')
+    data = c.fetchall()
+    
+    data_list = [{'name': row[0], 'address': row[1], 'category': row[2]} for row in data]
+
+    conn.close()
+    
+    json_data = json.dumps({'data': data_list}, ensure_ascii=False).encode('utf-8')
+    response = Response(response=json_data, status=200, mimetype="application/json; charset=utf-8")
+
+    return response
+
 # 아래 코드는 식당 정보를 일괄로 갱신 할 때 사용하는 코드입니다.
 # def edit_db(name, new_name, new_address):
 #     conn = sqlite3.connect('address.db')  # DB에 연결
@@ -222,6 +240,17 @@ def delete():
     delete_from_db(name)  # 삭제 함수
     return '식당 정보가 삭제되었습니다.<br><a href="/data">뒤로가기<a>'
 
+
+@app.route('/test')
+def test():
+    API_KEY = os.getenv('API_KEY')
+    return render_template('test2.html', API_KEY = API_KEY)
+
+@app.route('/data_test')
+def dt():
+    data = get_data_from_db_dict()
+    print(type(data))
+    return data
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5100, debug=True)
