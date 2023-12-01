@@ -122,6 +122,9 @@ def get_data_from_db():
 
     return data
 
+
+# 식당 정보 JSON 출력
+
 def get_data_from_db_dict():
     conn = sqlite3.connect('address.db', detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES, isolation_level=None) # DB에 연결
     conn.row_factory = sqlite3.Row
@@ -149,6 +152,7 @@ def get_data_from_db_dict():
 
 #     conn.commit()  # 변경사항 저장
 #     conn.close()
+
 
 # 식당 정보 수정
 
@@ -201,8 +205,6 @@ def data_page():
         return render_template('address.html', data=data, username=session['admin_id'])
     else : 
         return render_template('admin_login.html')
-    # data = get_data_from_db()  # DB에서 데이터를 가져오는 함수
-    # return render_template('address.html', data=data)  # HTML 템플릿에 데이터 전달
 
 # 아래 코드는 식당 정보를 일괄 수정할 수 있는 폼입니다.
 # @app.route('/edit', methods=['POST'])
@@ -240,16 +242,10 @@ def delete():
     delete_from_db(name)  # 삭제 함수
     return '식당 정보가 삭제되었습니다.<br><a href="/data">뒤로가기<a>'
 
-
-@app.route('/test')
-def test():
-    API_KEY = os.getenv('API_KEY')
-    return render_template('test2.html', API_KEY = API_KEY)
-
 @app.route('/data_test')
 def dt():
     data = get_data_from_db_dict()
-    print(type(data))
+    # print(type(data))
     return data
 
 if __name__ == '__main__':
